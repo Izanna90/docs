@@ -17,7 +17,6 @@ Before you begin, make sure your environment meets the following requirements:
 - **C++ Compiler** (G++ or Clang)
 - **CMake** (minimum version 3.15)
 - **Git** for cloning the repository
-- **SFML** library (version 2.5.1 or higher)
 - **vcpkg** for dependency management
 
 If you don’t have these tools installed, here are some quick commands:
@@ -28,12 +27,15 @@ sudo apt update
 sudo apt install cmake git build-essential
 ```
 
-### **Install SFML on Linux:**
+### **Install vcpkg:**
 ```bash
-sudo apt install libsfml-dev
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+cd ..
+cd Rtype
+./vcpkg install
 ```
-
-For **Windows** and **macOS**, refer to the [SFML installation guide](https://www.sfml-dev.org/tutorials/2.5/).
 </Accordion>
 
 </AccordionGroup>
@@ -53,18 +55,7 @@ git clone https://github.com/n0v4org/Rtype.git
 cd Rtype
 ```
 
-### **2. Set up dependencies with vcpkg**
-To ensure all libraries are properly installed, use vcpkg:
-
-```bash
-git clone https://github.com/microsoft/vcpkg.git
-cd vcpkg
-./bootstrap-vcpkg.sh
-./vcpkg integrate install
-```
-Return to the R-Type repository root and install the required libraries:
-
-### **3. Build the project**
+### **2. Build the project**
 ```bash
 ./utils/build.sh
 ```
@@ -167,11 +158,10 @@ cmake --version
 ```
 Ensure CMake is version 3.15 or higher. Update it if necessary.
 
-### **vcpkg or SFML not found:**
-Make sure vcpkg is integrated and the SFML library is installed:
+### **vcpkg not found:**
+Ensure vcpkg is integrated and installed properly:
 ```bash
-./vcpkg integrate install
-./vcpkg install sfml
+./vcpkg install
 ```
 
 ### **Compilation issues:** 

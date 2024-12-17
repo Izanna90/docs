@@ -116,30 +116,12 @@ The **UDP packet header** is **7 bytes** long and structured as follows:
 
 **Example of Header Structure:**
 ```cpp
-struct Header {
+struct input_t {
     uint8_t cmd;            // Command type
     uint16_t payload_size;  // Size of the payload
     uint32_t sequence_id;   // Unique sequence ID
-};
-```
-</Accordion>
+    std::vector<uint8_t> payload;   // Payload content
 
-<Accordion title="Payload Handling with input_t">
-To handle packet headers and payload data, we use the `input_t` structure:
-
-```cpp
-struct input_t {
-    Header header;               // Packet header
-    std::vector<uint8_t> data;   // Payload content
-
-    input_t(uint8_t command, const std::vector<uint8_t>& content)
-        : header{command, static_cast<uint16_t>(content.size()), generate_sequence_id()}, data(content) {}
-
-private:
-    static uint32_t generate_sequence_id() {
-        static uint32_t id = 0;
-        return id++;
-    }
 };
 ```
 </Accordion>
