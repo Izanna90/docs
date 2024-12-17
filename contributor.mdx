@@ -1,0 +1,155 @@
+---
+title: Contributor Guide
+description: Steps to add a new graphical library, game, or server commands to the R-Type project.
+---
+
+This page explains how contributors can extend the R-Type project by adding new graphical libraries, games, or server commands. Follow the steps below for seamless integration.
+
+---
+
+<AccordionGroup>
+
+## Adding a New Graphical Library
+
+<Accordion title="Steps to Add a New Graphical Library">
+To add a new graphical library, you need to implement the **IDisplayModule** interface and integrate it into the project.
+
+### Steps:
+1. **Implement the IDisplayModule**: 
+   - Create `.hpp` and `.cpp` files for the new library in the `graphic/` folder located inside the `engine/` directory.
+   - Implement all the virtual functions defined in `IDisplayModule`.
+
+   **Example**:
+   ```cpp
+   #include "IDisplayModule.hpp"
+
+   class NewLibraryModule : public zef::graph::IDisplayModule {
+   public:
+       void initialize(std::string assetFolderPath, std::string windowName) override {
+           // Code to initialize the window and load assets
+       }
+       void refresh() override {
+           // Code to refresh the screen
+       }
+       // Implement other required methods...
+   };
+   ```
+
+2. **Integrate the Library with CMake**:
+   - Add the new `.hpp` and `.cpp` files to the `CMakeLists.txt` located in the `engine/graphic` folder:
+     ```cmake
+     set(GRAPHICAL_LIB_SRCS
+         ${CMAKE_CURRENT_SOURCE_DIR}/NewLibraryModule.cpp
+     )
+     ```
+
+3. **Test the New Library**:
+   - Compile the project and ensure the library works as expected.
+   - Test graphical rendering, input handling, and performance.
+
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+<AccordionGroup>
+
+## Adding a New Game
+
+<Accordion title="Steps to Add a New Game">
+To add a new game to the project, follow these steps:
+
+### Steps:
+1. **Create Game-Specific Files**:
+   - Add a new folder in the `engine/` directory for your game logic.
+   - Implement game-specific systems, components, and logic.
+
+2. **Register the Game with the Engine**:
+   - Modify the engine's main configuration to include the new game logic.
+
+   **Example**:
+   ```cpp
+   void Engine::loadNewGame() {
+       // Initialize game-specific systems and components
+   }
+   ```
+
+3. **Test Gameplay**:
+   - Ensure the game runs correctly and integrates with the existing engine.
+
+4. **Commit Changes**:
+   - Follow the project ruleset for pull requests and approvals.
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+<AccordionGroup>
+
+## Adding New Server Commands
+
+<Accordion title="Steps to Add New TCP Commands">
+To add new **TCP commands** for the server:
+
+### Steps:
+1. **Define the Command**:
+   - Add the new command and its logic in the server's command handler.
+
+   **Example**:
+   ```cpp
+   if (command == "NEW_CMD") {
+       // Handle the new TCP command
+       send_response(client, "200: Command executed successfully");
+   }
+   ```
+
+2. **Update Documentation**:
+   - Add the new command to the TCP protocol documentation.
+
+3. **Test the Command**:
+   - Verify the command works with the client-server communication flow.
+</Accordion>
+
+<Accordion title="Steps to Add New UDP Commands">
+To add new **UDP commands** for real-time communication:
+
+### Steps:
+1. **Define the Packet Header and Logic**:
+   - Update the UDP packet structure to handle the new command.
+
+   **Example**:
+   ```cpp
+   struct Header {
+       uint8_t cmd;
+       uint16_t payload_size;
+       uint32_t sequence_id;
+   };
+
+   if (header.cmd == NEW_CMD) {
+       // Process UDP packet content
+   }
+   ```
+
+2. **Add the Command in the Command Handler**:
+   - Update the server's UDP processing loop to include the new command.
+
+3. **Test the Command**:
+   - Ensure the new command is sent and processed correctly in real time.
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Conclusion
+
+Contributors can enhance the R-Type project by:
+1. Adding new graphical libraries by implementing the **IDisplayModule** interface.
+2. Creating new games and integrating them with the engine.
+3. Adding new TCP and UDP commands for the server.
+
+Follow the project ruleset for pull requests and approvals to ensure high-quality contributions.
+
+---
