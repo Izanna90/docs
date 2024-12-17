@@ -24,6 +24,44 @@ ASIO is a modern **C++ networking library** that provides low-level I/O operatio
 
 ---
 
+## Network Package Handling
+
+<AccordionGroup>
+
+<Accordion title="Network Package Diagram">
+The following diagram illustrates the serialization, sending, and parsing process for network packets between the client and the server:
+
+![Network Package Diagram](./images/diagram.png)
+
+</Accordion>
+
+<Accordion title="Explanation of Network Package Handling">
+### Explanation
+1. **Client Serialization**:
+   - Before sending data, the client serializes it using the `Commands<type>::to_array` method to produce an `array<uint8_t>`.
+   - Example:
+     ```cpp
+     auto packet = Commands<MyType>::to_array(myData);
+     client->send(packet);
+     ```
+2. **Sending the Packet**:
+   - The serialized packet is sent over the network using the client class (`client->send`).
+
+3. **Server Parsing**:
+   - Upon receiving the packet, the server parses it into the appropriate command structure using:
+     ```cpp
+     Commands<MyType> command(packet);
+     ```
+4. **Accessing the Data**:
+   - The server can access the parsed data structure using `Commands->get_cmd()`.
+
+This flow ensures a clean and consistent mechanism for handling network communication between the client and server.
+</Accordion>
+
+</AccordionGroup>
+
+---
+
 <AccordionGroup>
 
 ## Comparison with Other Libraries
