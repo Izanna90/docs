@@ -1,0 +1,156 @@
+---
+title: CI/CD Pipeline Documentation
+description: Explanation of the CI/CD pipeline setup, including compilation, testing, mirroring, linting, and project ruleset.
+---
+
+This page describes the **CI/CD pipeline** implemented in the R-Type project. The pipeline ensures smooth development, automatic testing, and clean code standards through a series of actions.
+
+---
+
+<AccordionGroup>
+
+## CI/CD Actions
+
+<Accordion title="1. Compilation on Windows (MSVC)">
+The CI pipeline includes an **action for compilation on Windows** using **MSVC** (Microsoft Visual C++). 
+
+### Key Steps:
+1. Install dependencies with vcpkg.
+2. Build the project using CMake and MSVC.
+
+**Example Workflow:**
+```yaml
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg && bootstrap-vcpkg.bat
+      - name: Compile Project
+        run: |
+          cmake -S . -B build -G "Visual Studio 16 2019"
+          cmake --build build --config Release
+```
+</Accordion>
+
+<Accordion title="2. Compilation and Testing on Ubuntu (GTest)">
+On Ubuntu, the pipeline compiles the project and runs **unit tests** written with **Google Test**.
+
+### Key Steps:
+1. Install dependencies using vcpkg.
+2. Build the project with GCC/Clang.
+3. Run unit tests using GTest.
+
+**Example Workflow:**
+```yaml
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt install cmake g++-11
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg && ./bootstrap-vcpkg.sh
+      - name: Compile and Run Tests
+        run: |
+          cmake -S . -B build
+          cmake --build build
+          cd build && ctest
+```
+</Accordion>
+
+<Accordion title="3. Mirroring to Epitech Repository">
+To comply with Epitech requirements, an **action mirrors** the repository to the Epitech GitLab server.
+
+### Key Steps:
+1. Push updates to the remote Epitech repository.
+
+**Example Workflow:**
+```yaml
+jobs:
+  mirror-to-epitech:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Push to Epitech Repository
+        run: |
+          git remote add epitech https://git.epitech.eu/username/rtype.git
+          git push epitech main --force
+```
+</Accordion>
+
+<Accordion title="4. Code Linting and Formatting">
+The pipeline ensures **code consistency** using **cpplint** and **Clang-Format** (Google style guide). If formatting errors are detected, a commit with corrected code is pushed automatically.
+
+### Linter Configuration:
+- **cpplint**: Checks for style and structure issues.
+- **Clang-Format**: Applies automatic formatting.
+
+**Example Workflow:**
+```yaml
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Run cpplint
+        run: |
+          pip install cpplint
+          cpplint --recursive .
+      - name: Apply Clang-Format
+        run: |
+          clang-format -i $(find . -name "*.cpp" -o -name "*.hpp")
+          git config user.name "CI Bot"
+          git config user.email "ci@bot.com"
+          git commit -am "CI: Applied clang-format corrections" || echo "No changes to commit"
+          git push
+```
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Branch Ruleset
+
+To ensure code quality and prevent unapproved changes, the following ruleset is enforced:
+
+1. **No Direct Pushes to Main**: All changes must be submitted through a **Pull Request (PR)**.
+2. **Approval Requirements**: 
+   - A minimum of **two approvals** is required to merge a Pull Request.
+3. **CI/CD Validation**:
+   - All CI/CD actions (compilation, testing, linting) must pass successfully before merging.
+4. **Automatic Checks**: Code linting and formatting ensure that all committed code adheres to the **Google C++ Style Guide**.
+
+---
+
+## Conclusion
+
+The **CI/CD pipeline** automates the build, test, and deployment process, ensuring code quality, consistency, and compliance with project standards. With actions for **compilation**, **testing**, **mirroring**, and **linting**, the pipeline minimizes manual intervention and streamlines the development workflow.
+
+---
+
+## Other pages
+
+**[Get Started](./getting-started)**: Learn about how to build the project.
+
+**[Protocols](./protocols)**: Learn about the protocols.
+
+**[Server](./server)**: Learn about the server.
+
+**[Engine](./engine)**: Learn about the engine.
+
+**[Assets](./assets)**: How work the assets.
+
+**[Graphical](./graphical)**: Learn about the CI/CD.
+
+---

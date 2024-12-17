@@ -1,0 +1,112 @@
+---
+title: Assets Documentation
+description: Organization and management of assets in the R-Type project.
+---
+
+This page documents how **assets** are organized and managed in the **R-Type project**. Assets include graphical sprites, sound effects, animations, and fonts, which are essential for building an engaging game experience.
+
+---
+
+<AccordionGroup>
+
+## Asset Organization
+
+<Accordion title="Folder Structure">
+All assets are stored in the root `assets/` folder, and they are divided into subdirectories to separate different types of assets:
+
+### Folder Structure:
+```plaintext
+assets/
+├── sprites/        # Sprite images (PNG)
+├── sounds/         # Sound effects (WAV)
+├── fonts/          # Font files (TTF)
+├── shaders/        # Shader files (VERT)
+├── animations/     # Animation configuration files
+└── others/         # Miscellaneous assets
+```
+### Explanation:
+- **`sprites/`**: Contains all images used as game sprites.
+- **`sounds/`**: Includes sound effects such as explosions, background music, and UI sounds.
+- **`fonts/`**: Stores font files required for rendering text.
+- **`shaders/`**: Contains vertex and fragment shader files for advanced rendering effects.
+- **`animations/`**: Configuration files that define animation frames, sprite sheets, and timings.
+- **`others/`**: Any other assets not covered by the above categories.
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+<AccordionGroup>
+
+## Asset Loading and Management
+
+<Accordion title="How Assets Are Loaded">
+Assets are loaded at runtime by the graphical module through the `IDisplayModule` interface:
+
+1. **Sprites (PNG):**
+   - Loaded using the `storeAssetsPNG` function, which reads the sprite file and prepares it for rendering.
+   ```cpp
+   displayModule->storeAssetsPNG("assets/sprites/player.png");
+   ```
+
+2. **Sound Effects (WAV):**
+   - Managed with the `storeAssetsWAV` function to load and play sounds.
+   ```cpp
+   displayModule->storeAssetsWAV("assets/sounds/explosion.wav");
+   ```
+
+3. **Fonts (TTF):**
+   - Loaded using the `storeAssetsTTF` function for text rendering.
+   ```cpp
+   displayModule->storeAssetsTTF("assets/fonts/arial.ttf");
+   ```
+
+4. **Animations:**
+   - Configured with `configAssetsAnimations` to map sprite sheets and frame data.
+   ```cpp
+   displayModule->configAssetsAnimations("assets/animations/player_animation.cfg");
+   ```
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Best Practices for Asset Management
+
+1. **Organize Assets**: Keep assets logically structured within subfolders to improve maintainability.
+2. **Optimize File Sizes**: Use compressed images (PNG) and sound files (WAV) to reduce loading times.
+3. **Avoid Redundancy**: Remove unused assets to minimize project size.
+4. **Consistent Naming**: Use a clear and consistent naming convention for assets, such as:
+   ```plaintext
+   player_idle.png
+   player_run.png
+   explosion.wav
+   arial.ttf
+   ```
+5. **Centralize Configuration**: Store animation configurations in dedicated files to simplify updates.
+
+---
+
+## Conclusion
+
+The **`assets/`** folder is the centralized location for managing all game-related assets. With clear organization and runtime loading through the `IDisplayModule` interface, the R-Type project ensures an efficient and scalable approach to asset management.
+
+---
+
+## Other pages
+
+**[Get Started](./getting-started)**: Learn about how to build the project.
+
+**[Protocols](./protocols)**: Learn about the protocols.
+
+**[Server](./server)**: Learn about the server.
+
+**[Engine](./engine)**: Learn about the engine.
+
+**[Graphical](./graphical)**: How work the assets.
+
+**[CI/CD](./cicd)**: Learn about the CI/CD.
+
+---

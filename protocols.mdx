@@ -1,0 +1,224 @@
+---
+title: Protocols
+description: Documentation for TCP and UDP protocols in the R-Type project.
+---
+
+# Network Protocols
+
+This page documents the network communication protocols used in the **R-Type project**, including **TCP** and **UDP**. These protocols are essential for handling reliable and efficient communication between clients and the server.
+
+---
+
+<AccordionGroup>
+
+## TCP Protocol
+
+<Accordion title="Notations">
+- `->` : Request command from **client** to **server**.
+- `<-` : Reply from **server** to **client**.
+</Accordion>
+
+<Accordion title="Connection Establishment">
+The client establishes a connection with the server, and the server responds with:
+
+```text
+<- 220
+```
+</Accordion>
+
+<Accordion title="Commands and Responses">
+
+<Accordion title="1. JOIN Lobby">
+Request to join a specific lobby.
+
+**Command:**
+```text
+JOIN<SP>${Lobby_id}<CLRF> ->
+```
+**Responses:**
+- `200`: Lobby join successful.
+- `404`: Lobby not found.
+- `403`: Maximum number of players reached.
+- `402`: Player already in a lobby.
+- `400`: Invalid arguments.
+</Accordion>
+
+<Accordion title="2. GET_ALL_LOBBY">
+Request to retrieve the list of all available lobbies.
+
+**Command:**
+```text
+GET_ALL_LOBBY<CLRF> ->
+```
+**Responses:**
+- `lobby_id_list`: List of available lobbies.
+- `400`: Invalid arguments.
+</Accordion>
+
+<Accordion title="3. QUIT Lobby">
+Request to leave a specific lobby.
+
+**Command:**
+```text
+QUIT<SP>${Lobby_id}<CLRF> ->
+```
+**Responses:**
+- `200`: Lobby quit successful.
+- `404`: Client is not in a lobby.
+- `400`: Invalid arguments.
+</Accordion>
+
+<Accordion title="4. GET_LOBBY Information">
+Request details of a specific lobby, such as the list of users.
+
+**Command:**
+```text
+GET_LOBBY<SP>${Lobby_id}<CLRF> ->
+```
+**Responses:**
+- `200`: List of lobby users' IDs.
+- `404`: Lobby ID does not exist.
+- `400`: Invalid arguments.
+</Accordion>
+
+<Accordion title="5. LAUNCH_GAME">
+Request to launch the game in the current lobby.
+
+**Command:**
+```text
+LAUNCH_GAME<CLRF> ->
+```
+**Responses:**
+- `200`: Game is launching.
+- `401`: Client is not in a lobby.
+- `400`: Invalid arguments.
+</Accordion>
+
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+<AccordionGroup>
+
+## UDP Protocol
+
+<Accordion title="Header Format">
+The **UDP packet header** is **7 bytes** long and structured as follows:
+
+| **Field**         | **Type**       | **Description**                    |
+|-------------------|----------------|------------------------------------|
+| `cmd`            | `uint8_t`      | Command type                       |
+| `payload_size`   | `uint16_t`     | Size of the payload                |
+| `sequence_id`    | `uint32_t`     | Sequence ID of the packet          |
+| `payload`        | Variable       | Content of the payload             |
+
+**Example of Header Structure:**
+```cpp
+struct Header {
+    uint8_t cmd;            // Command type
+    uint16_t payload_size;  // Size of the payload
+    uint32_t sequence_id;   // Unique sequence ID
+};
+```
+</Accordion>
+
+<Accordion title="Payload Handling with input_t">
+To handle packet headers and payload data, we use the `input_t` structure:
+
+```cpp
+struct input_t {
+    Header header;               // Packet header
+    std::vector<uint8_t> data;   // Payload content
+
+    input_t(uint8_t command, const std::vector<uint8_t>& content)
+        : header{command, static_cast<uint16_t>(content.size()), generate_sequence_id()}, data(content) {}
+
+private:
+    static uint32_t generate_sequence_id() {
+        static uint32_t id = 0;
+        return id++;
+    }
+};
+```
+</Accordion>
+
+<Accordion title="Serialization and Deserialization with Command Class">
+The **`Command`** class is a template class used for serializing and deserializing packet data. It takes an `input_t` structure and a content array as input.
+
+**Example Implementation:**
+```cpp
+template<typename T>
+class Command {
+public:
+    Command(const input_t& input, const std::array<uint8_t, 1024>& content)
+        : header(input.header), payload(content.begin(), content.begin() + input.header.payload_size) {}
+
+    T get_command() const {
+        return deserialize();
+    }
+
+private:
+    Header header;
+    std::vector<uint8_t> payload;
+
+    T deserialize() const {
+        T result;
+        std::memcpy(&result, payload.data(), sizeof(T));
+        return result;
+    }
+};
+```
+
+The **`get_command`** method returns the deserialized data structure for use in the engine.
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Summary Table
+
+### **TCP Commands**
+| **Command**                   | **Description**                      | **Response Codes**            |
+|-------------------------------|--------------------------------------|-------------------------------|
+| `JOIN<SP>${Lobby_id}<CLRF>`   | Join a specific lobby                | `200`, `404`, `403`, `402`, `400`       |
+| `GET_ALL_LOBBY<CLRF>`         | Retrieve all available lobbies       | `lobby_id_list`, `400`            |
+| `QUIT<SP>${Lobby_id}<CLRF>`   | Quit a specific lobby                | `200`, `404`, `400`                 |
+| `GET_LOBBY<SP>${Lobby_id}<CLRF>` | Get lobby users' IDs                 | `200`, `404`, `400`                 |
+| `LAUNCH_GAME<CLRF>`           | Launch the game in the current lobby | `200`, `401`, `400`                 |
+
+### **UDP Protocol**
+| **Field**         | **Type**       | **Description**                    |
+|-------------------|----------------|------------------------------------|
+| `cmd`            | `uint8_t`      | Command type                       |
+| `payload_size`   | `uint16_t`     | Size of the payload                |
+| `sequence_id`    | `uint32_t`     | Sequence ID of the packet          |
+| `payload`        | Variable       | Content of the payload             |
+
+---
+
+## Conclusion
+
+The **TCP Protocol** ensures reliable communication for operations such as joining lobbies, retrieving information, and launching games. The **UDP Protocol** is optimized for speed and lightweight packet delivery, making it ideal for real-time updates.
+
+Together, these protocols provide a robust and efficient foundation for network communication in the **R-Type project**.
+
+---
+
+## Other pages
+
+**[Get Started](./getting-started)**: Learn about how to build the project.
+
+**[Graphical](./graphical)**: Learn about the graphical components.
+
+**[Server](./server)**: Learn about the server.
+
+**[Engine](./engine)**: Learn about the engine.
+
+**[Assets](./assets)**: How work the assets.
+
+**[CI/CD](./cicd)**: Learn about the CI/CD.
+
+---
