@@ -55,39 +55,6 @@ To add a new graphical library, you need to implement the **IDisplayModule** int
 
 <AccordionGroup>
 
-## Adding a New Game
-
-<Accordion title="Steps to Add a New Game">
-To add a new game to the project, follow these steps:
-
-### Steps:
-1. **Create Game-Specific Files**:
-   - Add a new folder in the `engine/` directory for your game logic.
-   - Implement game-specific systems, components, and logic.
-
-2. **Register the Game with the Engine**:
-   - Modify the engine's main configuration to include the new game logic.
-
-   **Example**:
-   ```cpp
-   void Engine::loadNewGame() {
-       // Initialize game-specific systems and components
-   }
-   ```
-
-3. **Test Gameplay**:
-   - Ensure the game runs correctly and integrates with the existing engine.
-
-4. **Commit Changes**:
-   - Follow the project ruleset for pull requests and approvals.
-</Accordion>
-
-</AccordionGroup>
-
----
-
-<AccordionGroup>
-
 ## Adding New Server Commands
 
 <Accordion title="Steps to Add New TCP Commands">
@@ -147,8 +114,7 @@ To add new **UDP commands** for real-time communication:
 
 Contributors can enhance the R-Type project by:
 1. Adding new graphical libraries by implementing the **IDisplayModule** interface.
-2. Creating new games and integrating them with the engine.
-3. Adding new TCP and UDP commands for the server.
+2. Adding new TCP and UDP commands for the server.
 
 Follow the project ruleset for pull requests and approvals to ensure high-quality contributions.
 
