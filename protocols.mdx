@@ -156,6 +156,122 @@ private:
 The **`get_command`** method returns the deserialized data structure for use in the engine.
 </Accordion>
 
+<Accordion title="UDP Commands in RFC Style">
+
+The following commands define the **UDP Protocol** commands in an RFC-style format:
+
+### Command: `CONNECT`
+**Description**: Connects the player to the server.
+**Parameters**: None
+
+---
+
+### Command: `MOVEPLAYER`
+**Description**: Moves the player.
+**Parameters**:
+- `float x`: X-coordinate of movement.
+- `float y`: Y-coordinate of movement.
+
+---
+
+### Command: `SHOOTPLAYER`
+**Description**: Player shoots.
+**Parameters**: None
+
+---
+
+### Command: `SENDPOSITION`
+**Description**: Sends the player's position to the server.
+**Parameters**:
+- `float x`: X-coordinate.
+- `float y`: Y-coordinate.
+
+---
+
+### Command: `SPAWNPLAYER`
+**Description**: Spawns a new player.
+**Parameters**:
+- `size_t replicable`: Replication flag.
+
+---
+
+### Command: `SPAWNALLY`
+**Description**: Spawns an ally.
+**Parameters**:
+- `float x`: X-coordinate.
+- `float y`: Y-coordinate.
+- `size_t replicable`: Replication flag.
+
+---
+
+### Command: `MOVEALLY`
+**Description**: Moves an ally.
+**Parameters**:
+- `int id`: Ally ID.
+- `float x`: X-coordinate.
+- `float y`: Y-coordinate.
+
+---
+
+### Command: `SPAWNBULLET`
+**Description**: Spawns a bullet.
+**Parameters**:
+- `size_t ship`: Ship ID associated with the bullet.
+
+---
+
+### Command: `SETPLAYERPOS`
+**Description**: Sets the player's position.
+**Parameters**:
+- `float x`: X-coordinate.
+- `float y`: Y-coordinate.
+
+---
+
+### Command: `SETALLYPOS`
+**Description**: Sets the ally's position.
+**Parameters**:
+- `size_t rep`: Ally replication ID.
+- `float x`: X-coordinate.
+- `float y`: Y-coordinate.
+
+---
+
+### Command: `ASKPOSITION`
+**Description**: Requests the position of entities.
+**Parameters**: None
+
+---
+
+### Command: `SPAWNMONSTER`
+**Description**: Spawns a monster.
+**Parameters**:
+- `size_t rep`: Replication ID.
+- `float x`: X-coordinate.
+- `float y`: Y-coordinate.
+
+---
+
+### Command: `KILLMONSTER`
+**Description**: Kills a monster.
+**Parameters**:
+- `size_t rep`: Replication ID.
+
+---
+
+### Command: `DEATH`
+**Description**: Registers a player death.
+**Parameters**: None
+
+---
+
+### Command: `DEATHALLY`
+**Description**: Registers an ally death.
+**Parameters**:
+- `size_t rep`: Replication ID.
+
+</Accordion>
+
 </AccordionGroup>
 
 ---
@@ -171,13 +287,24 @@ The **`get_command`** method returns the deserialized data structure for use in 
 | `GET_LOBBY<SP>${Lobby_id}<CLRF>` | Get lobby users' IDs                 | `200`, `404`, `400`                 |
 | `LAUNCH_GAME<CLRF>`           | Launch the game in the current lobby | `200`, `401`, `400`                 |
 
-### **UDP Protocol**
-| **Field**         | **Type**       | **Description**                    |
-|-------------------|----------------|------------------------------------|
-| `cmd`            | `uint8_t`      | Command type                       |
-| `payload_size`   | `uint16_t`     | Size of the payload                |
-| `sequence_id`    | `uint32_t`     | Sequence ID of the packet          |
-| `payload`        | Variable       | Content of the payload             |
+### **UDP Commands**
+| **Command**      | **Description**             | **Parameters**                                |
+|------------------|-----------------------------|----------------------------------------------|
+| `CONNECT`        | Connects the player         | None                                         |
+| `MOVEPLAYER`     | Moves the player            | `float x`, `float y`                         |
+| `SHOOTPLAYER`    | Player shoots               | None                                         |
+| `SENDPOSITION`   | Sends player position       | `float x`, `float y`                         |
+| `SPAWNPLAYER`    | Spawns a player             | `size_t replicable`                          |
+| `SPAWNALLY`      | Spawns an ally              | `float x`, `float y`, `size_t replicable`    |
+| `MOVEALLY`       | Moves an ally               | `int id`, `float x`, `float y`               |
+| `SPAWNBULLET`    | Spawns a bullet             | `size_t ship`                                |
+| `SETPLAYERPOS`   | Sets the player position    | `float x`, `float y`                         |
+| `SETALLYPOS`     | Sets the ally position      | `size_t rep`, `float x`, `float y`           |
+| `ASKPOSITION`    | Requests positions          | None                                         |
+| `SPAWNMONSTER`   | Spawns a monster            | `size_t rep`, `float x`, `float y`           |
+| `KILLMONSTER`    | Kills a monster             | `size_t rep`                                 |
+| `DEATH`          | Registers a player death    | None                                         |
+| `DEATHALLY`      | Registers an ally death     | `size_t rep`                                 |
 
 ---
 
