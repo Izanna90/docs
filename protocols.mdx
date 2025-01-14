@@ -18,80 +18,274 @@ This page documents the network communication protocols used in the **R-Type pro
 - `<-` : Reply from **server** to **client**.
 </Accordion>
 
-<Accordion title="Connection Establishment">
-The client establishes a connection with the server, and the server responds with:
+<Accordion title="Error Format">
+Responses in case of errors follow this structure:
 
-```text
-<- 220
+```json
+{
+    "description": "error description",
+    "status": error_code
+}
 ```
+
+### List of Errors
+- `400`: Invalid arguments
+- `401`: Maximum number of players reached
+- `402`: Room not found
+- `403`: Player already in lobby
+- `404`: Player is not in this lobby
+- `405`: Invalid password
+- `406`: Number of slots should be > 0 and < 5
+- `407`: Lobby name already exists, please provide another
+- `408`: Only the owner has the right
+- `409`: Default lobby, you do not have the right
+- `410`: Only admin can launch the game
+- `411`: Some players are not ready
+- `412`: Some parameters must be numbers
+- `413`: Game already running
 </Accordion>
 
 <Accordion title="Commands and Responses">
 
-<Accordion title="1. JOIN Lobby">
-Request to join a specific lobby.
-
-**Command:**
-```text
-JOIN<SP>${Lobby_id}<CLRF> ->
-```
-**Responses:**
-- `200`: Lobby join successful.
-- `404`: Lobby not found.
-- `403`: Maximum number of players reached.
-- `402`: Player already in a lobby.
-- `400`: Invalid arguments.
-</Accordion>
-
-<Accordion title="2. GET_ALL_LOBBY">
-Request to retrieve the list of all available lobbies.
-
+<Accordion title="1. GET_ALL_LOBBY">
 **Command:**
 ```text
 GET_ALL_LOBBY<CLRF> ->
 ```
-**Responses:**
-- `lobby_id_list`: List of available lobbies.
-- `400`: Invalid arguments.
+**Response:**
+```json
+{
+    "description": "successfully retrieved all lobbies",
+    "status": 200,
+    "rooms": [
+        {
+            "room_name": "lobby_name",
+            "room_id": lobby_id,
+            "slot": nb_slot,
+            "running": is_game_running,
+            "players": [
+                {
+                    "id": player_id,
+                    "is_admin": is_player_admin,
+                    "is_ready": is_player_ready,
+                    "username": "player_username"
+                }
+            ]
+        }
+    ]
+}
+```
 </Accordion>
 
-<Accordion title="3. QUIT Lobby">
-Request to leave a specific lobby.
-
+<Accordion title="2. JOIN">
 **Command:**
 ```text
-QUIT<SP>${Lobby_id}<CLRF> ->
+JOIN<SP>${lobby_id}<CLRF> ->
 ```
-**Responses:**
-- `200`: Lobby quit successful.
-- `404`: Client is not in a lobby.
-- `400`: Invalid arguments.
+**Response:**
+```json
+{
+    "description": "successfully joined lobby",
+    "status": 202,
+    "room_name": "joined_lobby_name",
+    "room_id": joined_lobby_id,
+    "slot": nb_slot,
+    "running": is_game_running,
+    "players": [
+        {
+            "id": player_id,
+            "is_admin": is_player_admin,
+            "is_ready": is_player_ready,
+            "username": "player_username"
+        }
+    ]
+}
+```
 </Accordion>
 
-<Accordion title="4. GET_LOBBY Information">
-Request details of a specific lobby, such as the list of users.
-
+<Accordion title="3. QUIT">
 **Command:**
 ```text
-GET_LOBBY<SP>${Lobby_id}<CLRF> ->
+QUIT<SP>${lobby_id}<CLRF> ->
 ```
-**Responses:**
-- `200`: List of lobby users' IDs.
-- `404`: Lobby ID does not exist.
-- `400`: Invalid arguments.
+**Response:**
+```json
+{
+    "description": "successfully quit room",
+    "status": 204,
+    "player": {
+        "player_id": player_id,
+        "name": "username"
+    },
+    "players": [
+        {
+            "id": player_id,
+            "is_admin": is_player_admin,
+            "is_ready": is_player_ready,
+            "username": "player_username"
+        }
+    ],
+    "room_name": "quited_lobby_name",
+    "room_id": quited_lobby_id,
+    "slot": nb_slot,
+    "running": is_game_running
+}
+```
 </Accordion>
 
-<Accordion title="5. LAUNCH_GAME">
-Request to launch the game in the current lobby.
-
+<Accordion title="4. SET_NEW_LOBBY">
 **Command:**
 ```text
-LAUNCH_GAME<CLRF> ->
+SET_NEW_LOBBY<SP>${lobby_name}<SP>${slot}<SP>${password}<CLRF> ->
 ```
-**Responses:**
-- `200`: Game is launching.
-- `401`: Client is not in a lobby.
-- `400`: Invalid arguments.
+**Response:**
+```json
+{
+    "description": "successfully created lobby",
+    "status": 205,
+    "player": {
+        "player_id": player_id,
+        "name": "username"
+    },
+    "players": [
+        {
+            "id": player_id,
+            "is_admin": is_player_admin,
+            "is_ready": is_player_ready,
+            "username": "player_username"
+        }
+    ],
+    "room_name": "created_lobby_name",
+    "room_id": created_lobby_id,
+    "slot": nb_slot,
+    "running": is_game_running
+}
+```
+</Accordion>
+
+<Accordion title="5. DELETE_LOBBY">
+**Command:**
+```text
+DELETE_LOBBY<SP>${lobby_id}<CLRF> ->
+```
+**Response:**
+```json
+{
+    "description": "successfully deleted lobby",
+    "status": 206,
+    "room_id": deleted_lobby_id
+}
+```
+</Accordion>
+
+<Accordion title="6. LAUNCH_GAME">
+**Command:**
+```text
+LAUNCH_GAME<SP>${lobby_id}<CLRF> ->
+```
+**Response:**
+```json
+{
+    "description": "launching game in lobby",
+    "status": 207,
+    "room_id": launched_lobby_id,
+    "tcp_port": tcp_port,
+    "udp_port": udp_port,
+    "player_uuid": "player_code"
+}
+```
+</Accordion>
+
+<Accordion title="7. SET_PLAYER_READY">
+**Command:**
+```text
+SET_PLAYER_READY<SP>${lobby_id}<CLRF> ->
+```
+**Response:**
+```json
+{
+    "description": "player is ready",
+    "status": 208,
+    "room_id": lobby_id,
+    "player_id": ready_player_id
+}
+```
+</Accordion>
+
+<Accordion title="8. UPDATE_LOBBY">
+**Command:**
+```text
+UPDATE_LOBBY<SP>${lobby_id}<SP>${lobby_name}<SP>${slot}<SP>${password}<CLRF> ->
+```
+**Response:**
+```json
+{
+    "description": "successfully updated lobby",
+    "status": 209,
+    "room_name": "updated_lobby_name",
+    "room_id": updated_lobby_id,
+    "slot": nb_slot,
+    "players": [
+        {
+            "id": player_id,
+            "is_admin": is_player_admin,
+            "is_ready": is_player_ready,
+            "username": "player_username"
+        }
+    ],
+    "running": is_game_running
+}
+```
+</Accordion>
+
+<Accordion title="9. UPDATE_PERM">
+**Command:**
+```text
+UPDATE_PERM<SP>${lobby_id}<SP>${player_id}<SP>${new_perm}<CLRF> ->
+```
+**Response:**
+```json
+{
+    "description": "successfully updated permissions",
+    "status": 210,
+    "room_id": lobby_id,
+    "player_id": target_player_id,
+    "is_admin": new_permission
+}
+```
+</Accordion>
+
+<Accordion title="10. KICK_PLAYER">
+**Command:**
+```text
+KICK_PLAYER<SP>${lobby_id}<SP>${player_id}<CLRF> ->
+```
+**Response:**
+```json
+{
+    "description": "successfully kicked player",
+    "status": 211,
+    "room_id": lobby_id,
+    "kicked_player": kicked_player_id
+}
+```
+</Accordion>
+
+<Accordion title="11. SEND_MSG">
+**Command:**
+```text
+SEND_MSG<SP>${lobby_id}<SP>${msg}<CLRF> ->
+```
+**Response:**
+```json
+{
+    "description": "message sent",
+    "status": 212,
+    "room_id": lobby_id,
+    "from": sender_id,
+    "msg": "message_content"
+}
+```
 </Accordion>
 
 </Accordion>
@@ -126,149 +320,100 @@ struct input_t {
 ```
 </Accordion>
 
-<Accordion title="Serialization and Deserialization with Command Class">
-The **`Command`** class is a template class used for serializing and deserializing packet data. It takes an `input_t` structure and a content array as input.
+<Accordion title="Commands">
 
-**Example Implementation:**
-```cpp
-template<typename T>
-class Command {
-public:
-    Command(const input_t& input, const std::array<uint8_t, 1024>& content)
-        : header(input.header), payload(content.begin(), content.begin() + input.header.payload_size) {}
-
-    T get_command() const {
-        return deserialize();
-    }
-
-private:
-    Header header;
-    std::vector<uint8_t> payload;
-
-    T deserialize() const {
-        T result;
-        std::memcpy(&result, payload.data(), sizeof(T));
-        return result;
-    }
-};
-```
-
-The **`get_command`** method returns the deserialized data structure for use in the engine.
+<Accordion title="CONNECT">
+**Description:** Connects the player to the server.
 </Accordion>
 
-<Accordion title="UDP Commands in RFC Style">
-
-The following commands define the **UDP Protocol** commands in an RFC-style format:
-
-### Command: `CONNECT`
-**Description**: Connects the player to the server.
-**Parameters**: None
-
----
-
-### Command: `MOVEPLAYER`
-**Description**: Moves the player.
-**Parameters**:
+<Accordion title="MOVEPLAYER">
+**Description:** Moves the player.
+**Parameters:**
 - `float x`: X-coordinate of movement.
 - `float y`: Y-coordinate of movement.
+</Accordion>
 
----
+<Accordion title="SHOOTPLAYER">
+**Description:** Player shoots.
+</Accordion>
 
-### Command: `SHOOTPLAYER`
-**Description**: Player shoots.
-**Parameters**: None
-
----
-
-### Command: `SENDPOSITION`
-**Description**: Sends the player's position to the server.
-**Parameters**:
+<Accordion title="SENDPOSITION">
+**Description:** Sends the player's position to the server.
+**Parameters:**
 - `float x`: X-coordinate.
 - `float y`: Y-coordinate.
+</Accordion>
 
----
-
-### Command: `SPAWNPLAYER`
-**Description**: Spawns a new player.
-**Parameters**:
+<Accordion title="SPAWNPLAYER">
+**Description:** Spawns a new player.
+**Parameters:**
 - `size_t replicable`: Replication flag.
+</Accordion>
 
----
-
-### Command: `SPAWNALLY`
-**Description**: Spawns an ally.
-**Parameters**:
+<Accordion title="SPAWNALLY">
+**Description:** Spawns an ally.
+**Parameters:**
 - `float x`: X-coordinate.
 - `float y`: Y-coordinate.
 - `size_t replicable`: Replication flag.
+</Accordion>
 
----
-
-### Command: `MOVEALLY`
-**Description**: Moves an ally.
-**Parameters**:
+<Accordion title="MOVEALLY">
+**Description:** Moves an ally.
+**Parameters:**
 - `int id`: Ally ID.
 - `float x`: X-coordinate.
 - `float y`: Y-coordinate.
+</Accordion>
 
----
-
-### Command: `SPAWNBULLET`
-**Description**: Spawns a bullet.
-**Parameters**:
+<Accordion title="SPAWNBULLET">
+**Description:** Spawns a bullet.
+**Parameters:**
 - `size_t ship`: Ship ID associated with the bullet.
+</Accordion>
 
----
-
-### Command: `SETPLAYERPOS`
-**Description**: Sets the player's position.
-**Parameters**:
+<Accordion title="SETPLAYERPOS">
+**Description:** Sets the player's position.
+**Parameters:**
 - `float x`: X-coordinate.
 - `float y`: Y-coordinate.
+</Accordion>
 
----
-
-### Command: `SETALLYPOS`
-**Description**: Sets the ally's position.
-**Parameters**:
+<Accordion title="SETALLYPOS">
+**Description:** Sets the ally's position.
+**Parameters:**
 - `size_t rep`: Ally replication ID.
 - `float x`: X-coordinate.
 - `float y`: Y-coordinate.
+</Accordion>
 
----
+<Accordion title="ASKPOSITION">
+**Description:** Requests the position of entities.
+</Accordion>
 
-### Command: `ASKPOSITION`
-**Description**: Requests the position of entities.
-**Parameters**: None
-
----
-
-### Command: `SPAWNMONSTER`
-**Description**: Spawns a monster.
-**Parameters**:
+<Accordion title="SPAWNMONSTER">
+**Description:** Spawns a monster.
+**Parameters:**
 - `size_t rep`: Replication ID.
 - `float x`: X-coordinate.
 - `float y`: Y-coordinate.
+</Accordion>
 
----
-
-### Command: `KILLMONSTER`
-**Description**: Kills a monster.
-**Parameters**:
+<Accordion title="KILLMONSTER">
+**Description:** Kills a monster.
+**Parameters:**
 - `size_t rep`: Replication ID.
+</Accordion>
 
----
+<Accordion title="DEATH">
+**Description:** Registers a player death.
+</Accordion>
 
-### Command: `DEATH`
-**Description**: Registers a player death.
-**Parameters**: None
-
----
-
-### Command: `DEATHALLY`
-**Description**: Registers an ally death.
-**Parameters**:
+<Accordion title="DEATHALLY">
+**Description:** Registers an ally death.
+**Parameters:**
 - `size_t rep`: Replication ID.
+</Accordion>
 
 </Accordion>
 
@@ -281,11 +426,17 @@ The following commands define the **UDP Protocol** commands in an RFC-style form
 ### **TCP Commands**
 | **Command**                   | **Description**                      | **Response Codes**            |
 |-------------------------------|--------------------------------------|-------------------------------|
-| `JOIN<SP>${Lobby_id}<CLRF>`   | Join a specific lobby                | `200`, `404`, `403`, `402`, `400`       |
-| `GET_ALL_LOBBY<CLRF>`         | Retrieve all available lobbies       | `lobby_id_list`, `400`            |
-| `QUIT<SP>${Lobby_id}<CLRF>`   | Quit a specific lobby                | `200`, `404`, `400`                 |
-| `GET_LOBBY<SP>${Lobby_id}<CLRF>` | Get lobby users' IDs                 | `200`, `404`, `400`                 |
-| `LAUNCH_GAME<CLRF>`           | Launch the game in the current lobby | `200`, `401`, `400`                 |
+| `GET_ALL_LOBBY<CLRF>`         | Retrieve all available lobbies       | `200`                         |
+| `JOIN<SP>${Lobby_id}<CLRF>`   | Join a specific lobby                | `202`                         |
+| `QUIT<SP>${Lobby_id}<CLRF>`   | Quit a specific lobby                | `204`                         |
+| `SET_NEW_LOBBY<SP>...`        | Create a new lobby                   | `205`                         |
+| `DELETE_LOBBY<SP>...`         | Delete a lobby                       | `206`                         |
+| `LAUNCH_GAME<SP>...`          | Launch the game in the lobby         | `207`                         |
+| `SET_PLAYER_READY<SP>...`     | Set a player as ready                | `208`                         |
+| `UPDATE_LOBBY<SP>...`         | Update the lobby                     | `209`                         |
+| `UPDATE_PERM<SP>...`          | Update player permissions            | `210`                         |
+| `KICK_PLAYER<SP>...`          | Kick a player from the lobby         | `211`                         |
+| `SEND_MSG<SP>...`             | Send a message in the lobby          | `212`                         |
 
 ### **UDP Commands**
 | **Command**      | **Description**             | **Parameters**                                |
